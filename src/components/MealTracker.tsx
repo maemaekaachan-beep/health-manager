@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { Plus, Trash2, Utensils } from 'lucide-react';
+import { Plus, Trash2, Utensils, Search } from 'lucide-react';
 import type { MealEntry } from '../types';
+import { searchFoods, type FoodItem } from '../data/foodDatabase';
 
 interface Props {
   entries: MealEntry[];
@@ -33,6 +34,57 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
     calories: '',
     category: 'lunch' as MealEntry['category'],
   });
+  const [suggestions, setSuggestions] = useState<FoodItem[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleNameChange = (value: string) => {
+    setForm(prev => ({ ...prev, name: value }));
+    const results = searchFoods(value);
+    setSuggestions(results);
+    setShowSuggestions(results.length > 0);
+    setActiveIndex(-1);
+  };
+
+  const selectFood = (food: FoodItem) => {
+    setForm(prev => ({ ...prev, name: food.name, calories: String(food.calories) }));
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setActiveIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      selectFood(suggestions[activeIndex]);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +98,7 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
       category: form.category,
     });
     setForm(prev => ({ ...prev, name: '', calories: '' }));
+    setShowSuggestions(false);
   };
 
   const todayEntries = entries
@@ -92,14 +145,43 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
           </div>
         </div>
         <div className="form-row">
-          <div className="form-group flex-2">
-            <label>食事内容</label>
-            <input
-              type="text"
-              placeholder="例: ご飯、味噌汁、焼き魚"
-              value={form.name}
-              onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-            />
+          <div className="form-group flex-2 food-search-wrapper">
+            <label>
+              食事内容
+              <span className="food-search-hint">
+                <Search size={11} /> 食品名で検索するとカロリーが自動入力
+              </span>
+            </label>
+            <div className="food-input-container">
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="例: ご飯、鶏から揚げ、バナナ"
+                value={form.name}
+                onChange={e => handleNameChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                autoComplete="off"
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <div ref={suggestionsRef} className="food-suggestions">
+                  {suggestions.map((food, idx) => (
+                    <button
+                      key={food.name}
+                      type="button"
+                      className={`food-suggestion-item ${idx === activeIndex ? 'active' : ''}`}
+                      onMouseDown={() => selectFood(food)}
+                    >
+                      <span className="suggestion-name">{food.name}</span>
+                      <span className="suggestion-meta">
+                        <span className="suggestion-unit">{food.unit}</span>
+                        <span className="suggestion-calories">{food.calories} kcal</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="form-group">
             <label>カロリー (kcal)</label>

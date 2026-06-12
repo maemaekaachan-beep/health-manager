@@ -450,6 +450,93 @@
   background: rgba(52, 211, 153, 0.12);
 }
 
+/* Food search autocomplete */
+.food-search-wrapper {
+  position: relative;
+}
+
+.food-search-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--accent-light);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+
+.food-input-container {
+  position: relative;
+}
+
+.food-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.food-suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 8px;
+}
+
+.food-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.food-suggestion-item:hover,
+.food-suggestion-item.active {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.suggestion-name {
+  font-size: 14px;
+  color: var(--text-heading);
+  flex: 1;
+  text-align: left;
+}
+
+.suggestion-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.suggestion-unit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.suggestion-calories {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-light);
+  white-space: nowrap;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .app-main {
