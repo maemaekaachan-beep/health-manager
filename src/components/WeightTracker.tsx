@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Plus, Trash2, Scale } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import type { WeightEntry } from '../types';
 
@@ -15,7 +15,7 @@ interface Props {
 
 export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
   const today = format(new Date(), 'yyyy-MM-dd');
-  const [form, setForm] = useState({ date: today, weight: '', note: '' });
+  const [form, setForm] = useState({ date: today, weight: '', bodyFat: '', note: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,15 +24,17 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
       id: crypto.randomUUID(),
       date: form.date,
       weight: Number(form.weight),
+      bodyFat: form.bodyFat ? Number(form.bodyFat) : undefined,
       note: form.note || undefined,
     });
-    setForm(prev => ({ ...prev, weight: '', note: '' }));
+    setForm(prev => ({ ...prev, weight: '', bodyFat: '', note: '' }));
   };
 
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
   const chartData = sorted.slice(-30).map(e => ({
     date: format(new Date(e.date + 'T00:00:00'), 'M/d'),
     weight: e.weight,
+    bodyFat: e.bodyFat ?? null,
   }));
 
   const latest = sorted[sorted.length - 1];
@@ -69,6 +71,18 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
               onChange={e => setForm(prev => ({ ...prev, weight: e.target.value }))}
             />
           </div>
+          <div className="form-group">
+            <label>体脂肪率 (%) 任意</label>
+            <input
+              type="number"
+              placeholder="20.0"
+              step="0.1"
+              min="0"
+              max="100"
+              value={form.bodyFat}
+              onChange={e => setForm(prev => ({ ...prev, bodyFat: e.target.value }))}
+            />
+          </div>
           <div className="form-group flex-2">
             <label>メモ（任意）</label>
             <input
@@ -86,7 +100,7 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
 
       {latest && (
         <div className="summary-card">
-          <span>最新の体重</span>
+          <span>最新の記録</span>
           <div className="weight-summary">
             <span className="calories-total">{latest.weight} kg</span>
             {diff !== null && (
@@ -94,34 +108,63 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
                 {diff > 0 ? '+' : ''}{diff.toFixed(1)} kg
               </span>
             )}
+            {latest.bodyFat != null && (
+              <span className="bodyfat-label">体脂肪率 {latest.bodyFat} %</span>
+            )}
           </div>
         </div>
       )}
 
       {chartData.length > 1 && (
         <div className="chart-container">
-          <h3>体重推移（直近30件）</h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <h3>推移グラフ（直近30件）</h3>
+          <ResponsiveContainer width="100%" height={240}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2d2d3d" />
               <XAxis dataKey="date" stroke="#8884d8" tick={{ fontSize: 11 }} />
               <YAxis
-                stroke="#8884d8"
+                yAxisId="weight"
+                stroke="#6366f1"
                 tick={{ fontSize: 11 }}
                 domain={['auto', 'auto']}
                 tickFormatter={v => `${v}kg`}
               />
+              <YAxis
+                yAxisId="fat"
+                orientation="right"
+                stroke="#f472b6"
+                tick={{ fontSize: 11 }}
+                domain={['auto', 'auto']}
+                tickFormatter={v => `${v}%`}
+              />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #444' }}
-                formatter={(v) => [`${v} kg`, '体重']}
+                formatter={(v, name) =>
+                  name === 'weight' ? [`${v} kg`, '体重'] : [`${v} %`, '体脂肪率']
+                }
+              />
+              <Legend
+                formatter={v => v === 'weight' ? '体重' : '体脂肪率'}
+                wrapperStyle={{ fontSize: 12 }}
               />
               <Line
+                yAxisId="weight"
                 type="monotone"
                 dataKey="weight"
                 stroke="#6366f1"
                 strokeWidth={2}
                 dot={{ fill: '#6366f1', r: 3 }}
                 activeDot={{ r: 5 }}
+              />
+              <Line
+                yAxisId="fat"
+                type="monotone"
+                dataKey="bodyFat"
+                stroke="#f472b6"
+                strokeWidth={2}
+                dot={{ fill: '#f472b6', r: 3 }}
+                activeDot={{ r: 5 }}
+                connectNulls
               />
             </LineChart>
           </ResponsiveContainer>
@@ -140,7 +183,9 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
                 </span>
                 {entry.note && <span className="entry-time">{entry.note}</span>}
               </div>
-              <span className="entry-calories">{entry.weight} kg</span>
+              <span className="entry-calories">
+                {entry.weight} kg{entry.bodyFat != null ? `　${entry.bodyFat} %` : ''}
+              </span>
               <button
                 className="btn-delete"
                 onClick={() => onDelete(entry.id)}
