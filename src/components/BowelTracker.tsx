@@ -37,6 +37,7 @@ export default function BowelTracker({ entries, onAdd, onDelete }: Props) {
     time: format(now, 'HH:mm'),
     bristol: 4 as BowelEntry['bristol'],
     amount: 'medium' as BowelEntry['amount'],
+    count: 1,
     note: '',
   });
 
@@ -48,6 +49,7 @@ export default function BowelTracker({ entries, onAdd, onDelete }: Props) {
       time: form.time,
       bristol: form.bristol,
       amount: form.amount,
+      count: form.count,
       note: form.note || undefined,
     });
     const n = new Date();
@@ -55,6 +57,7 @@ export default function BowelTracker({ entries, onAdd, onDelete }: Props) {
       ...prev,
       date: format(n, 'yyyy-MM-dd'),
       time: format(n, 'HH:mm'),
+      count: 1,
       note: '',
     }));
   };
@@ -86,6 +89,16 @@ export default function BowelTracker({ entries, onAdd, onDelete }: Props) {
               type="time"
               value={form.time}
               onChange={e => setForm(prev => ({ ...prev, time: e.target.value }))}
+            />
+          </div>
+          <div className="form-group" style={{ maxWidth: 100 }}>
+            <label>回数</label>
+            <input
+              type="number"
+              min={1}
+              max={99}
+              value={form.count}
+              onChange={e => setForm(prev => ({ ...prev, count: Math.max(1, Number(e.target.value)) }))}
             />
           </div>
         </div>
@@ -162,7 +175,7 @@ export default function BowelTracker({ entries, onAdd, onDelete }: Props) {
                   </span>
                   {entry.note && <span className="entry-time">{entry.note}</span>}
                 </div>
-                <span className="entry-calories">量: {AMOUNT_LABEL[entry.amount]}</span>
+                <span className="entry-calories">量: {AMOUNT_LABEL[entry.amount]}　{entry.count ?? 1}回</span>
                 <button
                   className="btn-delete"
                   onClick={() => onDelete(entry.id)}

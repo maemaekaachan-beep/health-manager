@@ -29,6 +29,7 @@ export interface BowelEntry {
   time: string;
   bristol: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   amount: 'small' | 'medium' | 'large';
+  count?: number;
   note?: string;
 }
 
