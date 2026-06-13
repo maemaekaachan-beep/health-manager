@@ -1,10 +1,11 @@
-import { LayoutDashboard, Utensils, Moon, Scale } from 'lucide-react';
+import { LayoutDashboard, Utensils, Moon, Scale, ClipboardList } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { MealEntry, SleepEntry, WeightEntry, TabType } from './types';
+import type { MealEntry, SleepEntry, WeightEntry, BowelEntry, TabType } from './types';
 import Dashboard from './components/Dashboard';
 import MealTracker from './components/MealTracker';
 import SleepTracker from './components/SleepTracker';
 import WeightTracker from './components/WeightTracker';
+import BowelTracker from './components/BowelTracker';
 import './App.css';
 
 const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
@@ -12,6 +13,7 @@ const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
   { id: 'meal', label: '食事', icon: <Utensils size={20} /> },
   { id: 'sleep', label: '睡眠', icon: <Moon size={20} /> },
   { id: 'weight', label: '体重', icon: <Scale size={20} /> },
+  { id: 'bowel', label: '排便', icon: <ClipboardList size={20} /> },
 ];
 
 export default function App() {
@@ -19,6 +21,7 @@ export default function App() {
   const [meals, setMeals] = useLocalStorage<MealEntry[]>('health-meals', []);
   const [sleepEntries, setSleepEntries] = useLocalStorage<SleepEntry[]>('health-sleep', []);
   const [weightEntries, setWeightEntries] = useLocalStorage<WeightEntry[]>('health-weight', []);
+  const [bowelEntries, setBowelEntries] = useLocalStorage<BowelEntry[]>('health-bowel', []);
 
   return (
     <div className="app">
@@ -67,6 +70,13 @@ export default function App() {
             entries={weightEntries}
             onAdd={e => setWeightEntries(prev => [...prev, e])}
             onDelete={id => setWeightEntries(prev => prev.filter(e => e.id !== id))}
+          />
+        )}
+        {activeTab === 'bowel' && (
+          <BowelTracker
+            entries={bowelEntries}
+            onAdd={e => setBowelEntries(prev => [...prev, e])}
+            onDelete={id => setBowelEntries(prev => prev.filter(e => e.id !== id))}
           />
         )}
       </main>

@@ -23,4 +23,13 @@ export interface WeightEntry {
   note?: string;
 }
 
-export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight';
+export interface BowelEntry {
+  id: string;
+  date: string;
+  time: string;
+  bristol: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  amount: 'small' | 'medium' | 'large';
+  note?: string;
+}
+
+export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'bowel';

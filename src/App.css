@@ -537,6 +537,91 @@
   white-space: nowrap;
 }
 
+/* Bowel tracker */
+.bristol-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bristol-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  transition: all 0.15s;
+  min-width: 54px;
+}
+
+.bristol-btn:hover {
+  opacity: 0.85;
+}
+
+.bristol-num {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bristol-desc {
+  font-size: 10px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.amount-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.amount-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.amount-btn:hover {
+  border-color: var(--accent);
+}
+
+.amount-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.bowel-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.bowel-badge-num {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.bowel-badge-desc {
+  font-size: 10px;
+  line-height: 1;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .app-main {
