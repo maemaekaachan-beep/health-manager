@@ -76,6 +76,7 @@ export const FOOD_DATABASE: FoodItem[] = [
   { name: '冷奴', calories: 80, unit: '1丁' },
   { name: '麻婆豆腐', calories: 350, unit: '1人前' },
   { name: '納豆', calories: 100, unit: '1パック' },
+  { name: '弁当のおかず（鶏むね肉・卵・ほうれん草・チーズ）', calories: 200, unit: '1食分' },
 
   // 野菜・サラダ
   { name: 'サラダ（グリーン）', calories: 30, unit: '1皿' },
