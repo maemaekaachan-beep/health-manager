@@ -21,7 +21,15 @@ export interface WeightEntry {
   date: string;
   weight: number;
   bodyFat?: number;
+  bmr?: number;
+  bodyAge?: number;
   note?: string;
+}
+
+export interface Profile {
+  height?: number;
+  age?: number;
+  gender?: 'male' | 'female' | 'other';
 }
 
 export interface BowelEntry {
@@ -34,4 +42,4 @@ export interface BowelEntry {
   note?: string;
 }
 
-export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'bowel';
+export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'bowel' | 'profile';

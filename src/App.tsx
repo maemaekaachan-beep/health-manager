@@ -1,11 +1,12 @@
-import { LayoutDashboard, Utensils, Moon, Scale, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Utensils, Moon, Scale, ClipboardList, User } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { MealEntry, SleepEntry, WeightEntry, BowelEntry, TabType } from './types';
+import type { MealEntry, SleepEntry, WeightEntry, BowelEntry, Profile, TabType } from './types';
 import Dashboard from './components/Dashboard';
 import MealTracker from './components/MealTracker';
 import SleepTracker from './components/SleepTracker';
 import WeightTracker from './components/WeightTracker';
 import BowelTracker from './components/BowelTracker';
+import ProfileSettings from './components/ProfileSettings';
 import './App.css';
 
 const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
@@ -14,6 +15,7 @@ const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
   { id: 'sleep', label: '睡眠', icon: <Moon size={20} /> },
   { id: 'weight', label: '体重', icon: <Scale size={20} /> },
   { id: 'bowel', label: '排便', icon: <ClipboardList size={20} /> },
+  { id: 'profile', label: 'プロフィール', icon: <User size={20} /> },
 ];
 
 export default function App() {
@@ -22,6 +24,7 @@ export default function App() {
   const [sleepEntries, setSleepEntries] = useLocalStorage<SleepEntry[]>('health-sleep', []);
   const [weightEntries, setWeightEntries] = useLocalStorage<WeightEntry[]>('health-weight', []);
   const [bowelEntries, setBowelEntries] = useLocalStorage<BowelEntry[]>('health-bowel', []);
+  const [profile, setProfile] = useLocalStorage<Profile>('health-profile', {});
 
   return (
     <div className="app">
@@ -78,6 +81,9 @@ export default function App() {
             onAdd={e => setBowelEntries(prev => [...prev, e])}
             onDelete={id => setBowelEntries(prev => prev.filter(e => e.id !== id))}
           />
+        )}
+        {activeTab === 'profile' && (
+          <ProfileSettings profile={profile} onSave={setProfile} />
         )}
       </main>
     </div>

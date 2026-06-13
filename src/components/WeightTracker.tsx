@@ -15,7 +15,7 @@ interface Props {
 
 export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
   const today = format(new Date(), 'yyyy-MM-dd');
-  const [form, setForm] = useState({ date: today, weight: '', bodyFat: '', note: '' });
+  const [form, setForm] = useState({ date: today, weight: '', bodyFat: '', bmr: '', bodyAge: '', note: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +25,11 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
       date: form.date,
       weight: Number(form.weight),
       bodyFat: form.bodyFat ? Number(form.bodyFat) : undefined,
+      bmr: form.bmr ? Number(form.bmr) : undefined,
+      bodyAge: form.bodyAge ? Number(form.bodyAge) : undefined,
       note: form.note || undefined,
     });
-    setForm(prev => ({ ...prev, weight: '', bodyFat: '', note: '' }));
+    setForm(prev => ({ ...prev, weight: '', bodyFat: '', bmr: '', bodyAge: '', note: '' }));
   };
 
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
@@ -83,6 +85,29 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
               onChange={e => setForm(prev => ({ ...prev, bodyFat: e.target.value }))}
             />
           </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>基礎代謝量 (kcal) 任意</label>
+            <input
+              type="number"
+              placeholder="1500"
+              min="0"
+              value={form.bmr}
+              onChange={e => setForm(prev => ({ ...prev, bmr: e.target.value }))}
+            />
+          </div>
+          <div className="form-group">
+            <label>体内年齢 (歳) 任意</label>
+            <input
+              type="number"
+              placeholder="30"
+              min="0"
+              max="120"
+              value={form.bodyAge}
+              onChange={e => setForm(prev => ({ ...prev, bodyAge: e.target.value }))}
+            />
+          </div>
           <div className="form-group flex-2">
             <label>メモ（任意）</label>
             <input
@@ -110,6 +135,12 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
             )}
             {latest.bodyFat != null && (
               <span className="bodyfat-label">体脂肪率 {latest.bodyFat} %</span>
+            )}
+            {latest.bmr != null && (
+              <span className="bmr-label">基礎代謝 {latest.bmr} kcal</span>
+            )}
+            {latest.bodyAge != null && (
+              <span className="bodyage-label">体内年齢 {latest.bodyAge} 歳</span>
             )}
           </div>
         </div>
@@ -181,11 +212,18 @@ export default function WeightTracker({ entries, onAdd, onDelete }: Props) {
                 <span className="entry-name">
                   {format(new Date(entry.date + 'T00:00:00'), 'M月d日 (E)', { locale: ja })}
                 </span>
+                {(entry.bodyFat != null || entry.bmr != null || entry.bodyAge != null) && (
+                  <span className="entry-time">
+                    {[
+                      entry.bodyFat != null && `体脂肪 ${entry.bodyFat}%`,
+                      entry.bmr != null && `基礎代謝 ${entry.bmr}kcal`,
+                      entry.bodyAge != null && `体内年齢 ${entry.bodyAge}歳`,
+                    ].filter(Boolean).join('　')}
+                  </span>
+                )}
                 {entry.note && <span className="entry-time">{entry.note}</span>}
               </div>
-              <span className="entry-calories">
-                {entry.weight} kg{entry.bodyFat != null ? `　${entry.bodyFat} %` : ''}
-              </span>
+              <span className="entry-calories">{entry.weight} kg</span>
               <button
                 className="btn-delete"
                 onClick={() => onDelete(entry.id)}
