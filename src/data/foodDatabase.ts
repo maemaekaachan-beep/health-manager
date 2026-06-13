@@ -29,6 +29,7 @@ export const FOOD_DATABASE: FoodItem[] = [
 
   // 麺類
   { name: 'かけうどん', calories: 310, unit: '1杯' },
+  { name: 'きつねうどん', calories: 400, unit: '1杯' },
   { name: 'ざるそば', calories: 320, unit: '1人前' },
   { name: 'もりそば', calories: 300, unit: '1人前' },
   { name: '焼きそば', calories: 480, unit: '1人前' },
