@@ -5,6 +5,8 @@ export interface MealEntry {
   name: string;
   calories: number;
   category: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  skipped?: boolean;
+  skipReason?: string;
 }
 
 export interface SleepEntry {

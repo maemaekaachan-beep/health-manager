@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { Plus, Trash2, Utensils, Search } from 'lucide-react';
+import { Plus, Trash2, Utensils, Search, Ban } from 'lucide-react';
 import type { MealEntry } from '../types';
 import { searchFoods, type FoodItem } from '../data/foodDatabase';
 
@@ -33,6 +33,8 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
     name: '',
     calories: '',
     category: 'lunch' as MealEntry['category'],
+    skipped: false,
+    skipReason: '',
   });
   const [suggestions, setSuggestions] = useState<FoodItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -88,17 +90,31 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.calories) return;
-    onAdd({
-      id: crypto.randomUUID(),
-      date: form.date,
-      time: form.time,
-      name: form.name,
-      calories: Number(form.calories),
-      category: form.category,
-    });
-    setForm(prev => ({ ...prev, name: '', calories: '' }));
-    setShowSuggestions(false);
+    if (form.skipped) {
+      onAdd({
+        id: crypto.randomUUID(),
+        date: form.date,
+        time: form.time,
+        name: '食事なし',
+        calories: 0,
+        category: form.category,
+        skipped: true,
+        skipReason: form.skipReason.trim() || undefined,
+      });
+      setForm(prev => ({ ...prev, skipReason: '', skipped: false }));
+    } else {
+      if (!form.name || !form.calories) return;
+      onAdd({
+        id: crypto.randomUUID(),
+        date: form.date,
+        time: form.time,
+        name: form.name,
+        calories: Number(form.calories),
+        category: form.category,
+      });
+      setForm(prev => ({ ...prev, name: '', calories: '' }));
+      setShowSuggestions(false);
+    }
   };
 
   const todayEntries = entries
@@ -145,58 +161,89 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
           </div>
         </div>
         <div className="form-row">
-          <div className="form-group flex-2 food-search-wrapper">
-            <label>
-              食事内容
-              <span className="food-search-hint">
-                <Search size={11} /> 食品名で検索するとカロリーが自動入力
-              </span>
-            </label>
-            <div className="food-input-container">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="例: ご飯、鶏から揚げ、バナナ"
-                value={form.name}
-                onChange={e => handleNameChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                autoComplete="off"
-              />
-              {showSuggestions && suggestions.length > 0 && (
-                <div ref={suggestionsRef} className="food-suggestions">
-                  {suggestions.map((food, idx) => (
-                    <button
-                      key={food.name}
-                      type="button"
-                      className={`food-suggestion-item ${idx === activeIndex ? 'active' : ''}`}
-                      onMouseDown={() => selectFood(food)}
-                    >
-                      <span className="suggestion-name">{food.name}</span>
-                      <span className="suggestion-meta">
-                        <span className="suggestion-unit">{food.unit}</span>
-                        <span className="suggestion-calories">{food.calories} kcal</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="form-group">
-            <label>カロリー (kcal)</label>
+          <label className="skipped-checkbox-label">
             <input
-              type="number"
-              placeholder="500"
-              min="0"
-              value={form.calories}
-              onChange={e => setForm(prev => ({ ...prev, calories: e.target.value }))}
+              type="checkbox"
+              checked={form.skipped}
+              onChange={e => {
+                setForm(prev => ({ ...prev, skipped: e.target.checked }));
+                if (e.target.checked) setShowSuggestions(false);
+              }}
             />
-          </div>
-          <button type="submit" className="btn-primary">
-            <Plus size={18} /> 追加
-          </button>
+            <Ban size={14} />
+            食事をしなかった
+          </label>
         </div>
+        {form.skipped ? (
+          <div className="form-row">
+            <div className="form-group flex-2">
+              <label>理由・メモ（任意）</label>
+              <input
+                type="text"
+                placeholder="例: 体調不良、忙しかった、断食中"
+                value={form.skipReason}
+                onChange={e => setForm(prev => ({ ...prev, skipReason: e.target.value }))}
+              />
+            </div>
+            <button type="submit" className="btn-primary">
+              <Plus size={18} /> 追加
+            </button>
+          </div>
+        ) : (
+          <div className="form-row">
+            <div className="form-group flex-2 food-search-wrapper">
+              <label>
+                食事内容
+                <span className="food-search-hint">
+                  <Search size={11} /> 食品名で検索するとカロリーが自動入力
+                </span>
+              </label>
+              <div className="food-input-container">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="例: ご飯、鶏から揚げ、バナナ"
+                  value={form.name}
+                  onChange={e => handleNameChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  autoComplete="off"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div ref={suggestionsRef} className="food-suggestions">
+                    {suggestions.map((food, idx) => (
+                      <button
+                        key={food.name}
+                        type="button"
+                        className={`food-suggestion-item ${idx === activeIndex ? 'active' : ''}`}
+                        onMouseDown={() => selectFood(food)}
+                      >
+                        <span className="suggestion-name">{food.name}</span>
+                        <span className="suggestion-meta">
+                          <span className="suggestion-unit">{food.unit}</span>
+                          <span className="suggestion-calories">{food.calories} kcal</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>カロリー (kcal)</label>
+              <input
+                type="number"
+                placeholder="500"
+                min="0"
+                value={form.calories}
+                onChange={e => setForm(prev => ({ ...prev, calories: e.target.value }))}
+              />
+            </div>
+            <button type="submit" className="btn-primary">
+              <Plus size={18} /> 追加
+            </button>
+          </div>
+        )}
       </form>
 
       <div className="summary-card">
@@ -209,18 +256,34 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
           <div className="empty-state">この日の食事記録がありません</div>
         ) : (
           todayEntries.map(entry => (
-            <div key={entry.id} className="entry-card">
+            <div key={entry.id} className={`entry-card ${entry.skipped ? 'entry-card--skipped' : ''}`}>
               <div
                 className="category-badge"
-                style={{ backgroundColor: CATEGORY_COLORS[entry.category] }}
+                style={{ backgroundColor: entry.skipped ? '#9ca3af' : CATEGORY_COLORS[entry.category] }}
               >
                 {CATEGORIES[entry.category]}
               </div>
               <div className="entry-info">
-                <span className="entry-name">{entry.name}</span>
-                <span className="entry-time">{entry.time}</span>
+                {entry.skipped ? (
+                  <>
+                    <span className="entry-name entry-name--skipped">
+                      <Ban size={13} /> 食事なし
+                    </span>
+                    {entry.skipReason && (
+                      <span className="entry-skip-reason">{entry.skipReason}</span>
+                    )}
+                    <span className="entry-time">{entry.time}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="entry-name">{entry.name}</span>
+                    <span className="entry-time">{entry.time}</span>
+                  </>
+                )}
               </div>
-              <span className="entry-calories">{entry.calories} kcal</span>
+              {!entry.skipped && (
+                <span className="entry-calories">{entry.calories} kcal</span>
+              )}
               <button
                 className="btn-delete"
                 onClick={() => onDelete(entry.id)}

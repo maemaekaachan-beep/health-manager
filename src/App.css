@@ -503,6 +503,47 @@
   color: var(--accent-light);
 }
 
+/* Skipped meal */
+.skipped-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.skipped-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #9ca3af;
+  cursor: pointer;
+}
+
+.entry-card--skipped {
+  opacity: 0.75;
+  border-style: dashed;
+}
+
+.entry-name--skipped {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+.entry-skip-reason {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Food search autocomplete */
 .food-search-wrapper {
   position: relative;
