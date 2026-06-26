@@ -7,6 +7,7 @@ export interface FoodItem {
 export const FOOD_DATABASE: FoodItem[] = [
   // 主食
   { name: 'ご飯（茶碗1杯）', calories: 252, unit: '150g' },
+  { name: '雑穀ごはん（茶碗1杯）', calories: 250, unit: '150g' },
   { name: 'ご飯（大盛り）', calories: 336, unit: '200g' },
   { name: 'おにぎり（梅）', calories: 170, unit: '1個' },
   { name: 'おにぎり（鮭）', calories: 185, unit: '1個' },
