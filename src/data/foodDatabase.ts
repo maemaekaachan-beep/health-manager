@@ -91,6 +91,9 @@ export const FOOD_DATABASE: FoodItem[] = [
   { name: 'ひじきの煮物', calories: 80, unit: '1皿' },
   { name: '大根の煮物', calories: 60, unit: '1皿' },
   { name: 'にんじんのグラッセ', calories: 80, unit: '1皿' },
+  { name: 'ひじきの煮つけ', calories: 18, unit: '1食分' },
+  { name: 'きんぴらごぼう', calories: 21, unit: '1食分' },
+  { name: 'ほうれん草のごま和え', calories: 14, unit: '1食分' },
 
   // 汁物
   { name: '味噌汁', calories: 40, unit: '1杯' },
@@ -105,6 +108,9 @@ export const FOOD_DATABASE: FoodItem[] = [
   { name: 'ヨーグルト（加糖）', calories: 62, unit: '100g' },
   { name: 'チーズ（スライス）', calories: 68, unit: '1枚' },
   { name: 'アイスクリーム', calories: 160, unit: '1個' },
+
+  // 洋食
+  { name: 'グラタン', calories: 35, unit: '1食分' },
 
   // パン・サンドイッチ
   { name: 'サンドイッチ（ハム）', calories: 280, unit: '1個' },
