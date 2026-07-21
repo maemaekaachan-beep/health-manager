@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { User, Save } from 'lucide-react';
-import type { Profile } from '../types';
+import { useRef, useState } from 'react';
+import { User, Save, Download, Upload } from 'lucide-react';
+import type { Profile, MealEntry, SleepEntry, WeightEntry, BowelEntry } from '../types';
+import { exportBackup, parseBackupFile, type BackupData } from '../utils/backup';
 
 const GENDER_OPTIONS: { value: Profile['gender']; label: string }[] = [
   { value: 'male',   label: '男性' },
@@ -12,18 +13,60 @@ const GENDER_LABEL: Record<NonNullable<Profile['gender']>, string> = {
   male: '男性', female: '女性', other: 'その他',
 };
 
+interface BackupPayload {
+  meals: MealEntry[];
+  sleepEntries: SleepEntry[];
+  weightEntries: WeightEntry[];
+  bowelEntries: BowelEntry[];
+  profile: Profile;
+}
+
 interface Props {
   profile: Profile;
   onSave: (profile: Profile) => void;
+  backupData: BackupPayload;
+  onRestore: (data: BackupData) => void;
 }
 
-export default function ProfileSettings({ profile, onSave }: Props) {
+export default function ProfileSettings({ profile, onSave, backupData, onRestore }: Props) {
   const [form, setForm] = useState({
     height: profile.height?.toString() ?? '',
     age: profile.age?.toString() ?? '',
     gender: profile.gender ?? ('' as Profile['gender'] | ''),
   });
   const [saved, setSaved] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [imported, setImported] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    exportBackup(backupData);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setImportError('');
+    try {
+      const data = await parseBackupFile(file);
+      const confirmed = window.confirm(
+        '現在のデータをすべて上書きして、ファイルの内容で復元します。よろしいですか?'
+      );
+      if (!confirmed) return;
+
+      onRestore(data);
+      setImported(true);
+      setTimeout(() => setImported(false), 2000);
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'インポートに失敗しました');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +159,37 @@ export default function ProfileSettings({ profile, onSave }: Props) {
           </div>
         </div>
       )}
+
+      <div className="tracker-header">
+        <Download size={24} />
+        <h2>データのバックアップ</h2>
+      </div>
+
+      <div className="backup-section">
+        <p className="backup-desc">
+          体重・食事・睡眠・排便などすべての記録をJSONファイルに書き出せます。
+          アプリをアンインストールする前にエクスポートしておくと、後で同じファイルから復元できます。
+        </p>
+
+        <div className="backup-actions">
+          <button type="button" className="btn-primary" onClick={handleExport}>
+            <Download size={18} /> JSONでエクスポート
+          </button>
+
+          <button type="button" className="btn-secondary" onClick={handleImportClick}>
+            <Upload size={18} /> {imported ? '復元しました' : 'JSONから復元'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden-file-input"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        {importError && <p className="backup-error">{importError}</p>}
+      </div>
     </div>
   );
 }

@@ -192,6 +192,57 @@
   background: var(--accent-hover);
 }
 
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  background: transparent;
+  color: var(--accent-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.backup-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.backup-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.backup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.backup-error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
 .btn-delete {
   background: transparent;
   border: none;

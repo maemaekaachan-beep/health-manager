@@ -83,7 +83,18 @@ export default function App() {
           />
         )}
         {activeTab === 'profile' && (
-          <ProfileSettings profile={profile} onSave={setProfile} />
+          <ProfileSettings
+            profile={profile}
+            onSave={setProfile}
+            backupData={{ meals, sleepEntries, weightEntries, bowelEntries, profile }}
+            onRestore={data => {
+              setMeals(data.meals);
+              setSleepEntries(data.sleepEntries);
+              setWeightEntries(data.weightEntries);
+              setBowelEntries(data.bowelEntries);
+              setProfile(data.profile);
+            }}
+          />
         )}
       </main>
     </div>
