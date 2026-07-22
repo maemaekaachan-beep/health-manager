@@ -1,6 +1,6 @@
-import type { MealEntry, SleepEntry, WeightEntry, BowelEntry, Profile } from '../types';
+import type { MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry, Profile } from '../types';
 
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 
 export interface BackupData {
   version: number;
@@ -8,6 +8,7 @@ export interface BackupData {
   meals: MealEntry[];
   sleepEntries: SleepEntry[];
   weightEntries: WeightEntry[];
+  stepEntries: StepEntry[];
   bowelEntries: BowelEntry[];
   profile: Profile;
 }
@@ -49,6 +50,7 @@ export async function parseBackupFile(file: File): Promise<BackupData> {
     !isArray(data.meals) ||
     !isArray(data.sleepEntries) ||
     !isArray(data.weightEntries) ||
+    (data.stepEntries !== undefined && !isArray(data.stepEntries)) ||
     !isArray(data.bowelEntries) ||
     typeof data.profile !== 'object' ||
     data.profile === null
@@ -62,6 +64,7 @@ export async function parseBackupFile(file: File): Promise<BackupData> {
     meals: data.meals as MealEntry[],
     sleepEntries: data.sleepEntries as SleepEntry[],
     weightEntries: data.weightEntries as WeightEntry[],
+    stepEntries: isArray(data.stepEntries) ? (data.stepEntries as StepEntry[]) : [],
     bowelEntries: data.bowelEntries as BowelEntry[],
     profile: data.profile as Profile,
   };

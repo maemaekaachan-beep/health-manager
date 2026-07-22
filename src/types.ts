@@ -44,4 +44,10 @@ export interface BowelEntry {
   note?: string;
 }
 
-export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'bowel' | 'profile';
+export interface StepEntry {
+  id: string;
+  date: string;
+  steps: number;
+}
+
+export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'steps' | 'bowel' | 'profile';

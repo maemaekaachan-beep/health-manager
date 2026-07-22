@@ -1,10 +1,11 @@
-import { LayoutDashboard, Utensils, Moon, Scale, ClipboardList, User } from 'lucide-react';
+import { LayoutDashboard, Utensils, Moon, Scale, Footprints, ClipboardList, User } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { MealEntry, SleepEntry, WeightEntry, BowelEntry, Profile, TabType } from './types';
+import type { MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry, Profile, TabType } from './types';
 import Dashboard from './components/Dashboard';
 import MealTracker from './components/MealTracker';
 import SleepTracker from './components/SleepTracker';
 import WeightTracker from './components/WeightTracker';
+import StepTracker from './components/StepTracker';
 import BowelTracker from './components/BowelTracker';
 import ProfileSettings from './components/ProfileSettings';
 import './App.css';
@@ -14,6 +15,7 @@ const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
   { id: 'meal', label: '食事', icon: <Utensils size={20} /> },
   { id: 'sleep', label: '睡眠', icon: <Moon size={20} /> },
   { id: 'weight', label: '体重', icon: <Scale size={20} /> },
+  { id: 'steps', label: '歩数', icon: <Footprints size={20} /> },
   { id: 'bowel', label: '排便', icon: <ClipboardList size={20} /> },
   { id: 'profile', label: 'プロフィール', icon: <User size={20} /> },
 ];
@@ -23,6 +25,7 @@ export default function App() {
   const [meals, setMeals] = useLocalStorage<MealEntry[]>('health-meals', []);
   const [sleepEntries, setSleepEntries] = useLocalStorage<SleepEntry[]>('health-sleep', []);
   const [weightEntries, setWeightEntries] = useLocalStorage<WeightEntry[]>('health-weight', []);
+  const [stepEntries, setStepEntries] = useLocalStorage<StepEntry[]>('health-steps', []);
   const [bowelEntries, setBowelEntries] = useLocalStorage<BowelEntry[]>('health-bowel', []);
   const [profile, setProfile] = useLocalStorage<Profile>('health-profile', {});
 
@@ -52,7 +55,7 @@ export default function App() {
 
       <main className="app-main">
         {activeTab === 'dashboard' && (
-          <Dashboard meals={meals} sleep={sleepEntries} weight={weightEntries} />
+          <Dashboard meals={meals} sleep={sleepEntries} weight={weightEntries} steps={stepEntries} />
         )}
         {activeTab === 'meal' && (
           <MealTracker
@@ -75,6 +78,13 @@ export default function App() {
             onDelete={id => setWeightEntries(prev => prev.filter(e => e.id !== id))}
           />
         )}
+        {activeTab === 'steps' && (
+          <StepTracker
+            entries={stepEntries}
+            onAdd={e => setStepEntries(prev => [...prev, e])}
+            onDelete={id => setStepEntries(prev => prev.filter(e => e.id !== id))}
+          />
+        )}
         {activeTab === 'bowel' && (
           <BowelTracker
             entries={bowelEntries}
@@ -86,11 +96,12 @@ export default function App() {
           <ProfileSettings
             profile={profile}
             onSave={setProfile}
-            backupData={{ meals, sleepEntries, weightEntries, bowelEntries, profile }}
+            backupData={{ meals, sleepEntries, weightEntries, stepEntries, bowelEntries, profile }}
             onRestore={data => {
               setMeals(data.meals);
               setSleepEntries(data.sleepEntries);
               setWeightEntries(data.weightEntries);
+              setStepEntries(data.stepEntries);
               setBowelEntries(data.bowelEntries);
               setProfile(data.profile);
             }}

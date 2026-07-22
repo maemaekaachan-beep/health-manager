@@ -1,18 +1,19 @@
 import { format, subDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { Flame, Moon, Scale, TrendingDown, TrendingUp } from 'lucide-react';
+import { Flame, Moon, Scale, Footprints, TrendingDown, TrendingUp } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import type { MealEntry, SleepEntry, WeightEntry } from '../types';
+import type { MealEntry, SleepEntry, WeightEntry, StepEntry } from '../types';
 
 interface Props {
   meals: MealEntry[];
   sleep: SleepEntry[];
   weight: WeightEntry[];
+  steps: StepEntry[];
 }
 
-export default function Dashboard({ meals, sleep, weight }: Props) {
+export default function Dashboard({ meals, sleep, weight, steps }: Props) {
   const today = format(new Date(), 'yyyy-MM-dd');
 
   const todayCalories = meals
@@ -28,6 +29,8 @@ export default function Dashboard({ meals, sleep, weight }: Props) {
   const weightDiff = latestWeight && prevWeight
     ? latestWeight.weight - prevWeight.weight
     : null;
+
+  const todaySteps = steps.find(e => e.date === today)?.steps ?? null;
 
   // Calorie chart for last 7 days
   const last7 = Array.from({ length: 7 }, (_, i) => {
@@ -86,6 +89,18 @@ export default function Dashboard({ meals, sleep, weight }: Props) {
             )}
           </div>
         </div>
+
+        <div className="dash-card">
+          <div className="dash-card-icon" style={{ color: '#6366f1' }}>
+            <Footprints size={28} />
+          </div>
+          <div className="dash-card-body">
+            <span className="dash-card-label">今日の歩数</span>
+            <span className="dash-card-value">
+              {todaySteps !== null ? `${todaySteps.toLocaleString()} 歩` : '—'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="chart-container">
@@ -104,7 +119,7 @@ export default function Dashboard({ meals, sleep, weight }: Props) {
         </ResponsiveContainer>
       </div>
 
-      {meals.length === 0 && sleep.length === 0 && weight.length === 0 && (
+      {meals.length === 0 && sleep.length === 0 && weight.length === 0 && steps.length === 0 && (
         <div className="empty-state" style={{ marginTop: '2rem' }}>
           各タブからデータを入力してください
         </div>
