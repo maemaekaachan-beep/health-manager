@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { User, Save, Download, Upload } from 'lucide-react';
 import type { Profile, MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry } from '../types';
+import type { CustomFoodItem } from '../data/foodDatabase';
 import { exportBackup, parseBackupFile, type BackupData } from '../utils/backup';
 
 const GENDER_OPTIONS: { value: Profile['gender']; label: string }[] = [
@@ -19,6 +20,7 @@ interface BackupPayload {
   weightEntries: WeightEntry[];
   stepEntries: StepEntry[];
   bowelEntries: BowelEntry[];
+  customFoods: CustomFoodItem[];
   profile: Profile;
 }
 
@@ -168,7 +170,7 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
 
       <div className="backup-section">
         <p className="backup-desc">
-          体重・食事・睡眠・歩数・排便などすべての記録をJSONファイルに書き出せます。
+          体重・食事・睡眠・歩数・排便・登録食品などすべての記録をJSONファイルに書き出せます。
           アプリをアンインストールする前にエクスポートしておくと、後で同じファイルから復元できます。
         </p>
 

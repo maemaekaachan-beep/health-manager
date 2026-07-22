@@ -3,10 +3,11 @@ import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Plus, Trash2, Utensils, Search, Ban } from 'lucide-react';
 import type { MealEntry } from '../types';
-import { searchFoods, type FoodItem } from '../data/foodDatabase';
+import { searchFoods, type FoodItem, type CustomFoodItem } from '../data/foodDatabase';
 
 interface Props {
   entries: MealEntry[];
+  customFoods: CustomFoodItem[];
   onAdd: (entry: MealEntry) => void;
   onDelete: (id: string) => void;
 }
@@ -25,7 +26,7 @@ const CATEGORY_COLORS = {
   snack: '#f43f5e',
 };
 
-export default function MealTracker({ entries, onAdd, onDelete }: Props) {
+export default function MealTracker({ entries, customFoods, onAdd, onDelete }: Props) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const [form, setForm] = useState({
     date: today,
@@ -39,6 +40,7 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
   const [suggestions, setSuggestions] = useState<FoodItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [matchedFood, setMatchedFood] = useState<FoodItem | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +61,8 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
 
   const handleNameChange = (value: string) => {
     setForm(prev => ({ ...prev, name: value }));
-    const results = searchFoods(value);
+    setMatchedFood(null);
+    const results = searchFoods(value, customFoods);
     setSuggestions(results);
     setShowSuggestions(results.length > 0);
     setActiveIndex(-1);
@@ -67,6 +70,7 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
 
   const selectFood = (food: FoodItem) => {
     setForm(prev => ({ ...prev, name: food.name, calories: String(food.calories) }));
+    setMatchedFood(food);
     setShowSuggestions(false);
     setSuggestions([]);
     setActiveIndex(-1);
@@ -104,6 +108,15 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
       setForm(prev => ({ ...prev, skipReason: '', skipped: false }));
     } else {
       if (!form.name || !form.calories) return;
+      const nutrients = matchedFood && matchedFood.name === form.name
+        ? {
+            protein: matchedFood.protein, fat: matchedFood.fat, carbs: matchedFood.carbs,
+            calcium: matchedFood.calcium, iron: matchedFood.iron,
+            vitaminA: matchedFood.vitaminA, vitaminB1: matchedFood.vitaminB1, vitaminB2: matchedFood.vitaminB2,
+            vitaminC: matchedFood.vitaminC, vitaminE: matchedFood.vitaminE,
+            fiber: matchedFood.fiber, salt: matchedFood.salt,
+          }
+        : {};
       onAdd({
         id: crypto.randomUUID(),
         date: form.date,
@@ -111,8 +124,10 @@ export default function MealTracker({ entries, onAdd, onDelete }: Props) {
         name: form.name,
         calories: Number(form.calories),
         category: form.category,
+        ...nutrients,
       });
       setForm(prev => ({ ...prev, name: '', calories: '' }));
+      setMatchedFood(null);
       setShowSuggestions(false);
     }
   };

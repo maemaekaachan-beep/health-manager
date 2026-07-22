@@ -1,4 +1,21 @@
-export interface MealEntry {
+export interface NutrientValues {
+  protein?: number;
+  fat?: number;
+  carbs?: number;
+  calcium?: number;
+  iron?: number;
+  vitaminA?: number;
+  vitaminB1?: number;
+  vitaminB2?: number;
+  vitaminC?: number;
+  vitaminE?: number;
+  fiber?: number;
+  salt?: number;
+}
+
+export type NutrientKey = keyof NutrientValues;
+
+export interface MealEntry extends NutrientValues {
   id: string;
   date: string;
   time: string;
@@ -50,4 +67,4 @@ export interface StepEntry {
   steps: number;
 }
 
-export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'steps' | 'bowel' | 'profile';
+export type TabType = 'dashboard' | 'meal' | 'sleep' | 'weight' | 'steps' | 'nutrition' | 'bowel' | 'profile';

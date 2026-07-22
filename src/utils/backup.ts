@@ -1,6 +1,7 @@
 import type { MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry, Profile } from '../types';
+import type { CustomFoodItem } from '../data/foodDatabase';
 
-export const BACKUP_VERSION = 2;
+export const BACKUP_VERSION = 3;
 
 export interface BackupData {
   version: number;
@@ -10,6 +11,7 @@ export interface BackupData {
   weightEntries: WeightEntry[];
   stepEntries: StepEntry[];
   bowelEntries: BowelEntry[];
+  customFoods: CustomFoodItem[];
   profile: Profile;
 }
 
@@ -51,6 +53,7 @@ export async function parseBackupFile(file: File): Promise<BackupData> {
     !isArray(data.sleepEntries) ||
     !isArray(data.weightEntries) ||
     (data.stepEntries !== undefined && !isArray(data.stepEntries)) ||
+    (data.customFoods !== undefined && !isArray(data.customFoods)) ||
     !isArray(data.bowelEntries) ||
     typeof data.profile !== 'object' ||
     data.profile === null
@@ -66,6 +69,7 @@ export async function parseBackupFile(file: File): Promise<BackupData> {
     weightEntries: data.weightEntries as WeightEntry[],
     stepEntries: isArray(data.stepEntries) ? (data.stepEntries as StepEntry[]) : [],
     bowelEntries: data.bowelEntries as BowelEntry[],
+    customFoods: isArray(data.customFoods) ? (data.customFoods as CustomFoodItem[]) : [],
     profile: data.profile as Profile,
   };
 }

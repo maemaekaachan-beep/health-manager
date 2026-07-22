@@ -1,7 +1,13 @@
-export interface FoodItem {
+import type { NutrientValues } from '../types';
+
+export interface FoodItem extends NutrientValues {
   name: string;
   calories: number;
   unit: string;
+}
+
+export interface CustomFoodItem extends FoodItem {
+  id: string;
 }
 
 export const FOOD_DATABASE: FoodItem[] = [
@@ -155,10 +161,11 @@ export const FOOD_DATABASE: FoodItem[] = [
   { name: 'スポーツドリンク', calories: 60, unit: '500ml' },
 ];
 
-export function searchFoods(query: string): FoodItem[] {
+export function searchFoods(query: string, customFoods: FoodItem[] = []): FoodItem[] {
   if (!query.trim()) return [];
   const q = query.toLowerCase();
-  return FOOD_DATABASE.filter(
-    f => f.name.toLowerCase().includes(q) || f.unit.toLowerCase().includes(q)
-  ).slice(0, 8);
+  const pool = [...customFoods, ...FOOD_DATABASE];
+  return pool
+    .filter(f => f.name.toLowerCase().includes(q) || f.unit.toLowerCase().includes(q))
+    .slice(0, 8);
 }

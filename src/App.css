@@ -779,6 +779,126 @@
   line-height: 1;
 }
 
+/* Nutrition */
+.btn-edit {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.btn-edit:hover {
+  color: var(--accent-light);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.nutrient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.nutrient-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nutrient-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nutrient-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.nutrient-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.nutrient-nodata {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.nutrient-meter-track {
+  height: 10px;
+  border-radius: 100px;
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.nutrient-meter-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.3s ease;
+}
+
+.nutrient-meter-fill--low {
+  background: #fbbf24;
+}
+
+.nutrient-meter-fill--good {
+  background: #34d399;
+}
+
+.nutrient-meter-fill--high {
+  background: #f87171;
+}
+
+.nutrient-meter-fill--empty {
+  background: transparent;
+}
+
+.nutrient-row--empty {
+  opacity: 0.55;
+}
+
+.status-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+.status-pill--low {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.14);
+}
+
+.status-pill--good {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.14);
+}
+
+.status-pill--high {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.nutrition-disclaimer {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .app-main {
