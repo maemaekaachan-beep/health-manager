@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { User, Save, Download, Upload } from 'lucide-react';
 import type { Profile, MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry } from '../types';
 import type { CustomFoodItem } from '../data/foodDatabase';
-import { exportBackup, parseBackupFile, type BackupData } from '../utils/backup';
+import { exportBackup, parseBackupFile, mergeBackupData, type BackupData } from '../utils/backup';
 
 const GENDER_OPTIONS: { value: Profile['gender']; label: string }[] = [
   { value: 'male',   label: '男性' },
@@ -40,6 +40,7 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
   const [saved, setSaved] = useState(false);
   const [importError, setImportError] = useState('');
   const [imported, setImported] = useState(false);
+  const [importMode, setImportMode] = useState<'overwrite' | 'merge'>('overwrite');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
@@ -58,12 +59,22 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
     setImportError('');
     try {
       const data = await parseBackupFile(file);
-      const confirmed = window.confirm(
-        '現在のデータをすべて上書きして、ファイルの内容で復元します。よろしいですか?'
-      );
-      if (!confirmed) return;
 
-      onRestore(data);
+      if (importMode === 'overwrite') {
+        const confirmed = window.confirm(
+          '現在のデータをすべて上書きして、ファイルの内容で復元します。よろしいですか?'
+        );
+        if (!confirmed) return;
+        onRestore(data);
+      } else {
+        const confirmed = window.confirm(
+          '現在のデータに、ファイルの内容を重複なく追加(マージ)します。よろしいですか?'
+        );
+        if (!confirmed) return;
+        const merged = mergeBackupData(backupData, data);
+        onRestore({ ...data, ...merged });
+      }
+
       setImported(true);
       setTimeout(() => setImported(false), 2000);
     } catch (err) {
@@ -190,6 +201,26 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
             onChange={handleFileChange}
           />
         </div>
+
+        <div className="amount-selector" style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className={`amount-btn${importMode === 'overwrite' ? ' active' : ''}`}
+            onClick={() => setImportMode('overwrite')}
+          >
+            上書き
+          </button>
+          <button
+            type="button"
+            className={`amount-btn${importMode === 'merge' ? ' active' : ''}`}
+            onClick={() => setImportMode('merge')}
+          >
+            マージ(追加)
+          </button>
+        </div>
+        <p className="backup-desc">
+          「上書き」は現在のデータを完全に置き換えます。「マージ(追加)」は他の端末で書き出したバックアップを、現在のデータに重複なく追加したいときに使います(PCとスマホのデータ統合など)。
+        </p>
 
         {importError && <p className="backup-error">{importError}</p>}
       </div>

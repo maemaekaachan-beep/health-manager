@@ -73,3 +73,52 @@ export async function parseBackupFile(file: File): Promise<BackupData> {
     profile: data.profile as Profile,
   };
 }
+
+function mergeById<T extends { id: string }>(base: T[], incoming: T[]): T[] {
+  const seen = new Map(base.map(entry => [entry.id, entry]));
+  for (const entry of incoming) {
+    seen.set(entry.id, entry);
+  }
+  return [...seen.values()];
+}
+
+function sortByDate<T extends { date: string; time?: string }>(entries: T[]): T[] {
+  return [...entries].sort((a, b) => {
+    const aKey = a.time ? `${a.date}T${a.time}` : a.date;
+    const bKey = b.time ? `${b.date}T${b.time}` : b.date;
+    return aKey.localeCompare(bKey);
+  });
+}
+
+function isFilled(value: unknown) {
+  return value !== undefined && value !== null && value !== '';
+}
+
+function mergeProfile(base: Profile, incoming: Profile): Profile {
+  const merged: Profile = { ...base };
+  for (const key of Object.keys(incoming) as (keyof Profile)[]) {
+    if (isFilled(incoming[key])) {
+      (merged as Record<string, unknown>)[key] = incoming[key];
+    }
+  }
+  return merged;
+}
+
+/**
+ * 既存データ(base)にインポートしたデータ(incoming)を重複なく追加する。
+ * PC/スマホなど別端末で取ったバックアップ同士を統合する用途。
+ */
+export function mergeBackupData(
+  base: Omit<BackupData, 'version' | 'exportedAt'>,
+  incoming: Omit<BackupData, 'version' | 'exportedAt'>
+): Omit<BackupData, 'version' | 'exportedAt'> {
+  return {
+    meals: sortByDate(mergeById(base.meals, incoming.meals)),
+    sleepEntries: sortByDate(mergeById(base.sleepEntries, incoming.sleepEntries)),
+    weightEntries: sortByDate(mergeById(base.weightEntries, incoming.weightEntries)),
+    stepEntries: sortByDate(mergeById(base.stepEntries, incoming.stepEntries)),
+    bowelEntries: sortByDate(mergeById(base.bowelEntries, incoming.bowelEntries)),
+    customFoods: mergeById(base.customFoods, incoming.customFoods),
+    profile: mergeProfile(base.profile, incoming.profile),
+  };
+}

@@ -1,7 +1,7 @@
 import { LayoutDashboard, Utensils, Moon, Scale, Footprints, Apple, ClipboardList, User } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry, Profile, TabType } from './types';
-import type { CustomFoodItem } from './data/foodDatabase';
+import { useCloudData } from './hooks/useCloudData';
+import type { TabType } from './types';
 import Dashboard from './components/Dashboard';
 import MealTracker from './components/MealTracker';
 import SleepTracker from './components/SleepTracker';
@@ -25,13 +25,36 @@ const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useLocalStorage<TabType>('health-active-tab', 'dashboard');
-  const [meals, setMeals] = useLocalStorage<MealEntry[]>('health-meals', []);
-  const [sleepEntries, setSleepEntries] = useLocalStorage<SleepEntry[]>('health-sleep', []);
-  const [weightEntries, setWeightEntries] = useLocalStorage<WeightEntry[]>('health-weight', []);
-  const [stepEntries, setStepEntries] = useLocalStorage<StepEntry[]>('health-steps', []);
-  const [bowelEntries, setBowelEntries] = useLocalStorage<BowelEntry[]>('health-bowel', []);
-  const [customFoods, setCustomFoods] = useLocalStorage<CustomFoodItem[]>('health-custom-foods', []);
-  const [profile, setProfile] = useLocalStorage<Profile>('health-profile', {});
+  const {
+    meals, sleepEntries, weightEntries, stepEntries, bowelEntries, customFoods, profile,
+    loading, error, reload,
+    addMeal, deleteMeal,
+    addSleep, deleteSleep,
+    addWeight, deleteWeight,
+    addStep, deleteStep,
+    addBowel, deleteBowel,
+    addCustomFood, updateCustomFood, deleteCustomFood,
+    saveProfile, restoreAll,
+  } = useCloudData();
+
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="app-loading">読み込み中...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <div className="app-loading">
+          <p>{error}</p>
+          <button type="button" className="btn-primary" onClick={reload}>再読み込み</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -65,29 +88,29 @@ export default function App() {
           <MealTracker
             entries={meals}
             customFoods={customFoods}
-            onAdd={e => setMeals(prev => [...prev, e])}
-            onDelete={id => setMeals(prev => prev.filter(e => e.id !== id))}
+            onAdd={addMeal}
+            onDelete={deleteMeal}
           />
         )}
         {activeTab === 'sleep' && (
           <SleepTracker
             entries={sleepEntries}
-            onAdd={e => setSleepEntries(prev => [...prev, e])}
-            onDelete={id => setSleepEntries(prev => prev.filter(e => e.id !== id))}
+            onAdd={addSleep}
+            onDelete={deleteSleep}
           />
         )}
         {activeTab === 'weight' && (
           <WeightTracker
             entries={weightEntries}
-            onAdd={e => setWeightEntries(prev => [...prev, e])}
-            onDelete={id => setWeightEntries(prev => prev.filter(e => e.id !== id))}
+            onAdd={addWeight}
+            onDelete={deleteWeight}
           />
         )}
         {activeTab === 'steps' && (
           <StepTracker
             entries={stepEntries}
-            onAdd={e => setStepEntries(prev => [...prev, e])}
-            onDelete={id => setStepEntries(prev => prev.filter(e => e.id !== id))}
+            onAdd={addStep}
+            onDelete={deleteStep}
           />
         )}
         {activeTab === 'nutrition' && (
@@ -95,32 +118,24 @@ export default function App() {
             entries={meals}
             profile={profile}
             customFoods={customFoods}
-            onAddFood={f => setCustomFoods(prev => [...prev, f])}
-            onUpdateFood={f => setCustomFoods(prev => prev.map(item => item.id === f.id ? f : item))}
-            onDeleteFood={id => setCustomFoods(prev => prev.filter(f => f.id !== id))}
+            onAddFood={addCustomFood}
+            onUpdateFood={updateCustomFood}
+            onDeleteFood={deleteCustomFood}
           />
         )}
         {activeTab === 'bowel' && (
           <BowelTracker
             entries={bowelEntries}
-            onAdd={e => setBowelEntries(prev => [...prev, e])}
-            onDelete={id => setBowelEntries(prev => prev.filter(e => e.id !== id))}
+            onAdd={addBowel}
+            onDelete={deleteBowel}
           />
         )}
         {activeTab === 'profile' && (
           <ProfileSettings
             profile={profile}
-            onSave={setProfile}
+            onSave={saveProfile}
             backupData={{ meals, sleepEntries, weightEntries, stepEntries, bowelEntries, customFoods, profile }}
-            onRestore={data => {
-              setMeals(data.meals);
-              setSleepEntries(data.sleepEntries);
-              setWeightEntries(data.weightEntries);
-              setStepEntries(data.stepEntries);
-              setBowelEntries(data.bowelEntries);
-              setCustomFoods(data.customFoods);
-              setProfile(data.profile);
-            }}
+            onRestore={restoreAll}
           />
         )}
       </main>
