@@ -122,3 +122,62 @@ export function mergeBackupData(
     profile: mergeProfile(base.profile, incoming.profile),
   };
 }
+
+const LEGACY_KEYS = {
+  meals: 'health-meals',
+  sleepEntries: 'health-sleep',
+  weightEntries: 'health-weight',
+  stepEntries: 'health-steps',
+  bowelEntries: 'health-bowel',
+  customFoods: 'health-custom-foods',
+  profile: 'health-profile',
+} as const;
+
+function readLegacyArray<T>(key: string): T[] {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function readLegacyProfile(): Profile {
+  try {
+    const raw = window.localStorage.getItem(LEGACY_KEYS.profile);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? (parsed as Profile) : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * クラウドDB移行前、このブラウザのlocalStorageに残っている旧データを読み出す。
+ * 現在のアプリはlocalStorageを直接参照しなくなったため、移行漏れの回収に使う。
+ */
+export function readLegacyLocalStorage(): Omit<BackupData, 'version' | 'exportedAt'> {
+  return {
+    meals: readLegacyArray<MealEntry>(LEGACY_KEYS.meals),
+    sleepEntries: readLegacyArray<SleepEntry>(LEGACY_KEYS.sleepEntries),
+    weightEntries: readLegacyArray<WeightEntry>(LEGACY_KEYS.weightEntries),
+    stepEntries: readLegacyArray<StepEntry>(LEGACY_KEYS.stepEntries),
+    bowelEntries: readLegacyArray<BowelEntry>(LEGACY_KEYS.bowelEntries),
+    customFoods: readLegacyArray<CustomFoodItem>(LEGACY_KEYS.customFoods),
+    profile: readLegacyProfile(),
+  };
+}
+
+export function countBackupEntries(data: Omit<BackupData, 'version' | 'exportedAt'>): number {
+  return (
+    data.meals.length +
+    data.sleepEntries.length +
+    data.weightEntries.length +
+    data.stepEntries.length +
+    data.bowelEntries.length +
+    data.customFoods.length
+  );
+}

@@ -2,7 +2,14 @@ import { useRef, useState } from 'react';
 import { User, Save, Download, Upload } from 'lucide-react';
 import type { Profile, MealEntry, SleepEntry, WeightEntry, StepEntry, BowelEntry } from '../types';
 import type { CustomFoodItem } from '../data/foodDatabase';
-import { exportBackup, parseBackupFile, mergeBackupData, type BackupData } from '../utils/backup';
+import {
+  exportBackup,
+  parseBackupFile,
+  mergeBackupData,
+  readLegacyLocalStorage,
+  countBackupEntries,
+  type BackupData,
+} from '../utils/backup';
 
 const GENDER_OPTIONS: { value: Profile['gender']; label: string }[] = [
   { value: 'male',   label: '男性' },
@@ -41,6 +48,7 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
   const [importError, setImportError] = useState('');
   const [imported, setImported] = useState(false);
   const [importMode, setImportMode] = useState<'overwrite' | 'merge'>('overwrite');
+  const [legacyStatus, setLegacyStatus] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
@@ -80,6 +88,34 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'インポートに失敗しました');
     }
+  };
+
+  const handleLegacyRecover = () => {
+    const legacy = readLegacyLocalStorage();
+    const count = countBackupEntries(legacy);
+
+    if (count === 0) {
+      setLegacyStatus('このブラウザに旧データ(クラウド移行前のlocalStorage)は見つかりませんでした。');
+      return;
+    }
+
+    const summary = [
+      `食事 ${legacy.meals.length}件`,
+      `睡眠 ${legacy.sleepEntries.length}件`,
+      `体重 ${legacy.weightEntries.length}件`,
+      `歩数 ${legacy.stepEntries.length}件`,
+      `排便 ${legacy.bowelEntries.length}件`,
+      `登録食品 ${legacy.customFoods.length}件`,
+    ].join(' / ');
+
+    const confirmed = window.confirm(
+      `このブラウザに旧データが見つかりました:\n${summary}\n\n現在のクラウドデータに重複なく追加(マージ)します。よろしいですか?`
+    );
+    if (!confirmed) return;
+
+    const merged = mergeBackupData(backupData, legacy);
+    onRestore({ version: 0, exportedAt: '', ...merged });
+    setLegacyStatus('旧データをクラウドにマージしました。');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -223,6 +259,24 @@ export default function ProfileSettings({ profile, onSave, backupData, onRestore
         </p>
 
         {importError && <p className="backup-error">{importError}</p>}
+      </div>
+
+      <div className="tracker-header">
+        <Upload size={24} />
+        <h2>旧データの復元(このブラウザ限定)</h2>
+      </div>
+
+      <div className="backup-section">
+        <p className="backup-desc">
+          クラウド対応版に切り替わる前、このブラウザに保存されていたデータが残っていないか確認し、見つかった場合は現在のクラウドデータに追加します。
+          他の端末のデータはここでは検出できません(その場合はJSONエクスポート/インポートを使ってください)。
+        </p>
+        <div className="backup-actions">
+          <button type="button" className="btn-secondary" onClick={handleLegacyRecover}>
+            <Upload size={18} /> このブラウザの旧データを確認してマージ
+          </button>
+        </div>
+        {legacyStatus && <p className="backup-desc">{legacyStatus}</p>}
       </div>
     </div>
   );
