@@ -119,6 +119,7 @@ export const FOOD_DATABASE: FoodItem[] = [
   { name: 'グラタン', calories: 35, unit: '1食分' },
 
   // パン・サンドイッチ
+  { name: 'ソーセージエッグマフィン', calories: 477, unit: '1食分', protein: 21.9, fat: 30.6, carbs: 27.3, salt: 1.8, fiber: 1.9 },
   { name: 'サンドイッチ（ハム）', calories: 280, unit: '1個' },
   { name: 'バーガー（チーズ）', calories: 380, unit: '1個' },
   { name: 'ホットドッグ', calories: 280, unit: '1本' },
