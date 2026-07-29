@@ -250,7 +250,7 @@ export default function NutritionTracker({
             <div className="form-row">
               {NUTRIENT_ORDER.map(key => (
                 <div className="form-group" key={key}>
-                  <label>{NUTRIENT_META[key].label} ({NUTRIENT_META[key].unit}) 任意</label>
+                  <label>{NUTRIENT_META[key].label} (<span className="unit-text">{NUTRIENT_META[key].unit}</span>) 任意</label>
                   <input
                     type="number"
                     placeholder="未入力可"

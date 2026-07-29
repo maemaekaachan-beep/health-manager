@@ -161,6 +161,10 @@
   letter-spacing: 0.5px;
 }
 
+.form-group label .unit-text {
+  text-transform: none;
+}
+
 .form-group input,
 .form-group select {
   background: var(--bg-input);
