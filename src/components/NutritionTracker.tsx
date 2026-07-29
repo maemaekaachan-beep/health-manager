@@ -46,7 +46,7 @@ function formatTarget(spec: TargetSpec, unit: string): string {
 }
 
 function round(n: number): string {
-  return Math.round(n * 10) / 10 + '';
+  return Math.round(n * 100) / 100 + '';
 }
 
 function percentFill(intake: number, spec: TargetSpec): number {
@@ -254,7 +254,7 @@ export default function NutritionTracker({
                   <input
                     type="number"
                     placeholder="未入力可"
-                    step="0.1"
+                    step="0.01"
                     min="0"
                     value={foodForm[key]}
                     onChange={e => setFoodForm(prev => ({ ...prev, [key]: e.target.value }))}
