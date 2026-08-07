@@ -15,13 +15,13 @@ const BRISTOL: { scale: BowelEntry['bristol']; desc: string; color: string }[] =
 ];
 
 const AMOUNT: { value: BowelEntry['amount']; label: string }[] = [
-  { value: 'small',  label: '小' },
+  { value: 'small',  label: '少' },
   { value: 'medium', label: '中' },
   { value: 'large',  label: '多' },
 ];
 
 const AMOUNT_LABEL: Record<BowelEntry['amount'], string> = {
-  small: '小', medium: '中', large: '多',
+  small: '少', medium: '中', large: '多',
 };
 
 interface Props {
