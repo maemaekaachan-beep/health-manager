@@ -5,21 +5,21 @@
 }
 
 :root {
-  --bg: #0f0f17;
-  --bg-card: #1a1a2e;
-  --bg-input: #16213e;
-  --border: #2d2d4e;
-  --text: #c9d1d9;
-  --text-muted: #8b949e;
-  --text-heading: #e6edf3;
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --accent-hover: #4f52d9;
+  --bg: #f2f6f3;
+  --bg-card: #ffffff;
+  --bg-input: #eef4f0;
+  --border: #dde5e0;
+  --text: #374151;
+  --text-muted: #6b7280;
+  --text-heading: #111827;
+  --accent: #16a34a;
+  --accent-light: #22c55e;
+  --accent-hover: #15803d;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 body {
